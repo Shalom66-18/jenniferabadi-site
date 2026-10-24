@@ -273,6 +273,7 @@ details.acc .acc-body{padding:0 18px 16px 52px;font-size:16px;line-height:1.6}
 .cookbooks .text h6 a{display:inline-block}
 @media (max-width:900px){
   .site-header{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(255,255,255,.97)}
-  .main-nav{top:var(--header-h);height:calc(100vh - var(--header-h));z-index:60}
+  .main-nav{top:var(--header-h);height:calc(100vh - var(--header-h));z-index:60;background:#fff;text-align:center}
+  .main-nav .sub a{font-size:19px;padding:8px}
   .cookbooks .text h5,.cookbooks .text h6{font-size:22px}
 }
