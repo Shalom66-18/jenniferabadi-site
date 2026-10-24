@@ -91,6 +91,14 @@ def header(active):
   <nav class="main-nav"><ul>{''.join(items)}</ul></nav>
 </header>"""
 
+def _ver(path):
+    """Short fingerprint of a file, added to its link so browsers fetch the new version after a change."""
+    import hashlib
+    try:
+        return hashlib.md5(open(os.path.join(SITE, path), "rb").read()).hexdigest()[:8]
+    except OSError:
+        return "1"
+
 def page(title, body, active="", description="", body_class="", depth=0):
     """depth = how many folders deep the page sits (0 for index.html, 1 for about/index.html)."""
     t = "Jennifer Abadi" if not title else f"{title} – Jennifer Abadi"
@@ -105,7 +113,7 @@ def page(title, body, active="", description="", body_class="", depth=0):
 <link rel="icon" href="{img('wp-uploads/2022/11/cropped-JenniferAbadi_COMPRESSED.png') if _find_source('wp-uploads/2022/11/cropped-JenniferAbadi_COMPRESSED.png') else img('assets/images/cropped-JenniferAbadi_COMPRESSED-300x300.png')}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css?family=Economica:400,700,400italic,700italic%7CLato:300,400,400italic,700%7COpen+Sans+Condensed:300,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css?v={_ver('css/style.css')}">
 </head>
 <body class="{body_class}">
 {header(active)}
@@ -114,7 +122,7 @@ def page(title, body, active="", description="", body_class="", depth=0):
 </main>
 <footer class="site-footer"><p>Jennifer Abadi© <span class="year">2026</span> All rights reserved</p></footer>
 <a href="#" class="to-top" aria-label="Back to top">&#8963;</a>
-<script src="js/site.js"></script>
+<script src="js/site.js?v={_ver('js/site.js')}"></script>
 </body>
 </html>
 """

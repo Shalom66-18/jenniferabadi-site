@@ -22,7 +22,7 @@ Explain things in plain words; never ask her to run commands.
 | About, Cookbooks, Gift Certificates, Contact, Catalog intro/FAQ | `raw/about.html`, `raw/cookbooks.html`, `raw/gift-certificates-2023.html`, `raw/contact-jennifer.html`, `raw/cooking-class-catalog.html` (captured WordPress markup: find the text and edit it in place) |
 | Homepage text, testimonials, portfolio slider | `builder/build.py` (`build_home`) and `raw/portfolio_data.json` |
 | Header, menu, footer | `builder/common.py` |
-| Styles / scripts | `docs/css/style.css`, `docs/js/site.js` (these two are edited directly) |
+| Styles / scripts | `docs/css/style.css`, `docs/js/site.js` (edited directly; rebuild afterwards so pages pick up the new version) |
 
 ### Upcoming event entry (`content/upcoming.json`, a list, soonest first)
 ```json
