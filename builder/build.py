@@ -8,7 +8,7 @@ Where things live:
 """
 import json, os, re, html as H
 from bs4 import BeautifulSoup
-from common import ROOT, SITE, img, page, write, esc, MAILCHIMP
+from common import ROOT, SITE, img, page, write, esc, MAILCHIMP, remove_stale_pages
 import wphtml
 from wphtml import clean, rows, LINKMAP
 
@@ -136,7 +136,7 @@ def build_home():
 </section>
 <section class="events reveal" id="events">
   <h2 class="section-title">UPCOMING CLASSES &amp; EVENTS</h2>
-  <a class="btn" href="{MAILCHIMP}" target="_blank" rel="noopener">Sign Up for Class Updates</a>
+  <a class="btn" href="{MAILCHIMP}" target="_blank" rel="noopener">Receive Events Newsletter!</a>
   {events_block()}
 </section>"""
     write("index.html", page("", body, description="Learn Sephardic, Judeo-Arabic, Middle Eastern, Mediterranean and Central Asian cooking with cookbook author and culinary instructor Jennifer Abadi."))
@@ -151,7 +151,7 @@ def build_about():
 def build_events_page():
     body = f"""<h1 class="page-title">UPCOMING EVENTS</h1>
 <section class="events events-page">
-  <a class="btn" href="{MAILCHIMP}" target="_blank" rel="noopener">Sign Up for Class Updates</a>
+  <a class="btn" href="{MAILCHIMP}" target="_blank" rel="noopener">Receive Events Newsletter!</a>
   {events_block()}
 </section>"""
     write("upcoming-events/index.html", page("Upcoming Events", body, active="UPCOMING EVENTS", depth=1))
@@ -208,23 +208,38 @@ def build_articles():
 def share(title):
     t = H.escape(title)
     return f'''<div class="share">
-<a href="https://www.instagram.com/jenniferabadi/" target="_blank" rel="noopener" aria-label="Instagram" class="s-ig">Instagram</a>
-<span class="spacer"></span>
+<a href="https://www.instagram.com/jenniferabadi/" target="_blank" rel="noopener" aria-label="Instagram" class="s-ig"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="#fff" stroke-width="2"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="#fff" stroke-width="2"/><circle cx="17.3" cy="6.7" r="1.3" fill="#fff"/></svg></a>
 <a class="s-fb js-share" data-net="fb" href="#" aria-label="Share on Facebook">Facebook</a>
 <a class="s-li js-share" data-net="li" href="#" aria-label="Share on LinkedIn">LinkedIn</a>
 <a class="s-em js-share" data-net="em" href="#" aria-label="Share by email" data-title="{t}">Email</a>
 <a class="s-pr" href="javascript:print()" aria-label="Print">Print</a></div>'''
 
+def drop_image(html, image_path):
+    """Remove the first occurrence of an image from post HTML (it is shown under the title instead)."""
+    stem = re.sub(r"(-scaled)?(-\d+x\d+)?\.\w+$", "", image_path.split("/")[-1])
+    soup = BeautifulSoup(html, "html.parser")
+    for i in soup.find_all("img"):
+        if stem and stem in i.get("src", ""):
+            node = i
+            while node.parent is not None and node.parent.name in ("a", "figure", "p", "div") and \
+                    len(node.parent.get_text(strip=True)) == 0 and len(node.parent.find_all("img")) == 1:
+                node = node.parent
+            node.decompose()
+            break
+    return str(soup)
+
 def build_posts():
     for p in POSTS:
         content = clean(p["content_html"], autop=True)
-        if not text_of(content) and p.get("hero_image"):         # the image-only "slides" posts
-            content = f'<figure class="align-center"><img src="{img(p["hero_image"], 1400)}" alt="{esc(p["title"])}"></figure>'
+        hero = ""
+        if p.get("hero_image"):                                     # same picture as the thumbnail, under the title
+            hero = f'<figure class="post-hero"><img src="{img(p["hero_image"], 1400)}" alt="{esc(p["title"])}"></figure>'
+            content = drop_image(content, p["hero_image"])
         tags = [t for t in p.get("tags", []) if t.lower() != "home page slides"]
         tag_html = ('<div class="tags"><span>Tags</span>' + "".join(f"<em>{esc(t)}</em>" for t in tags) + "</div>") if tags else ""
         body = f"""<article class="post">
 <h1 class="post-title">{esc(p["title"])}</h1>
-{share(p["title"])}
+{hero}
 <div class="post-body">{content}</div>
 {tag_html}
 </article>"""
@@ -285,13 +300,12 @@ def build_classes():
         msg = "contact-jennifer/index.html?class=" + quote(c["title"], safe="")
         body = f"""<article class="wrap class-page">
   <div class="class-top">
-    <div class="class-img">{pic}</div>
+    <div class="class-img">{pic}{share(c["title"])}</div>
     <div class="class-meta">
       <h1>{esc(c["title"])}</h1>
       <p class="meta"><b>Cuisine &amp; Diet:</b> {esc(", ".join(c["topics"]))}</p>
       <p class="meta"><b>Class Format:</b> {esc(", ".join(c["formats"]))}</p>
-      <a class="btn btn-square" href="{msg}">Message Me About this Class</a>
-      {share(c["title"])}
+      <a class="btn" href="{msg}">Message Me About this Class</a>
     </div>
   </div>
   <div class="class-body">{clean(c["content_html"], autop=True)}</div>
@@ -306,4 +320,6 @@ if __name__ == "__main__":
     wp_page("contact-jennifer", "contact-jennifer.html", "CONTACT", extra_class="contact")
     build_recipes(); build_articles(); build_posts()
     build_catalog(); build_classes()
+    gone = remove_stale_pages()
+    if gone: print("removed old pages:", gone)
     print("pages built. unknown internal links:", sorted(wphtml.UNKNOWN)[:40], len(wphtml.UNKNOWN))

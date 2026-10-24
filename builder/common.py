@@ -119,9 +119,25 @@ def page(title, body, active="", description="", body_class="", depth=0):
 </html>
 """
 
+WRITTEN = set()
+
 def write(name, content):
     path = os.path.join(SITE, name)
+    WRITTEN.add(os.path.normpath(path))
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
         f.write(content)
     pass
+
+def remove_stale_pages():
+    """Delete generated pages that no longer exist in the content (e.g. a deleted recipe)."""
+    removed = []
+    for dirpath, dirs, files in os.walk(SITE):
+        if "index.html" in files and dirpath != SITE:
+            p = os.path.normpath(os.path.join(dirpath, "index.html"))
+            if p not in WRITTEN:
+                os.remove(p)
+                removed.append(os.path.relpath(dirpath, SITE))
+                if not os.listdir(dirpath):
+                    os.rmdir(dirpath)
+    return removed
