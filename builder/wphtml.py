@@ -77,6 +77,8 @@ def clean(fragment, autop=False):
             t["class"] = "btn"
         if t.name == "a" and t.get("href"):
             t["href"] = map_url(t["href"])
+            if "eepurl.com" in t["href"] or "list-manage.com" in t["href"]:   # newsletter sign-up opens in a new tab
+                t["target"] = "_blank"; t["rel"] = "noopener"
         if t.name == "img":
             src = t.get("data-src") or t.get("src") or ""
             t["src"] = map_url(src) if "jenniferabadi.com" in src else img(src) if src.startswith("wp-uploads") else src
@@ -153,7 +155,7 @@ def rows(raw_html, contact_form_html="", skip_first_heading=True):
                 elif "wpb_text_column" in cl: items.append(text_column(e, contact_form_html))
                 elif "theme_button" in cl or "vc_btn3-container" in cl:
                     a = e.find("a")
-                    if a: items.append(f'<p class="btn-wrap"><a class="btn" href="{map_url(a.get("href",""))}"' + (' target="_blank" rel="noopener"' if a.get("target") == "_blank" else "") + f'>{esc(a.get_text(strip=True))}</a></p>')
+                    if a: items.append(f'<p class="btn-wrap"><a class="btn" href="{map_url(a.get("href",""))}"' + (' target="_blank" rel="noopener"' if a.get("target") == "_blank" or "eepurl.com" in a.get("href", "") else "") + f'>{esc(a.get_text(strip=True))}</a></p>')
                 elif "prk_shortcode-title" in cl:
                     h = e.find(re.compile("^h[1-6]$"))
                     if h: items.append(f'<{h.name} class="block-title">{esc(h.get_text(" ", strip=True))}</{h.name}>')
