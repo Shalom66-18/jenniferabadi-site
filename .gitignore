@@ -1,0 +1,5 @@
+# Never publish the WordPress export: it contains customer booking records
+*.xml
+wp-uploads/
+__pycache__/
+.DS_Store
