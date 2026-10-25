@@ -312,6 +312,17 @@ def build_past_events():
 </div>"""
     write("past-events/index.html", page("Past Events", body, depth=1, hidden=True))
 
+def build_404():
+    """Shown for any address that doesn't exist (e.g. old WordPress-only links). Uses root-relative links."""
+    body = """<h1 class="page-title">PAGE NOT FOUND</h1>
+<div class="wrap" style="text-align:center">
+  <p>Sorry, this page has moved or no longer exists.</p>
+  <p class="btn-wrap"><a class="btn" href="index.html">Go to the home page</a></p>
+  <p><a href="recipe-abadi/index.html">Recipes</a> &nbsp;·&nbsp; <a href="cooking-class-catalog/index.html">Cooking Class Catalog</a> &nbsp;·&nbsp; <a href="contact-jennifer/index.html">Contact</a></p>
+</div>"""
+    html = page("Page Not Found", body, hidden=True).replace('<meta charset="UTF-8">', '<meta charset="UTF-8">\n<base href="/">', 1)
+    write("404.html", html)
+
 def build_classes():
     for c in CLASSES:
         pic = f'<img src="{img(c["hero_image"], 1400)}" alt="{esc(c["title"])}">' if c.get("hero_image") else ""
@@ -338,7 +349,7 @@ if __name__ == "__main__":
     wp_page("gift-certificates-2023", "gift-certificates-2023.html", "GIFT CERTIFICATES", extra_class="gifts")
     wp_page("contact-jennifer", "contact-jennifer.html", "CONTACT", extra_class="contact")
     build_recipes(); build_articles(); build_posts()
-    build_catalog(); build_classes(); build_past_events()
+    build_catalog(); build_classes(); build_past_events(); build_404()
     gone = remove_stale_pages()
     if gone: print("removed old pages:", gone)
     print("pages built. unknown internal links:", sorted(wphtml.UNKNOWN)[:40], len(wphtml.UNKNOWN))
