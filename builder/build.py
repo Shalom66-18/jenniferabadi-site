@@ -267,7 +267,9 @@ def build_catalog():
     cols = s.select(".row .col")
     left = cols[0].decode_contents() if cols else ""
     topics, formats = {}, {}
-    listed = [c for c in CLASSES if any(catalog_format(f) for f in c["formats"])]
+    # "past_event": true files a class/event away: it keeps its page (old links still work)
+    # but is not listed in the catalog. Remove the flag to bring it back.
+    listed = [c for c in CLASSES if not c.get("past_event") and any(catalog_format(f) for f in c["formats"])]
     for c in listed:
         for t in c["topics"]: topics[t] = topics.get(t, 0) + 1
         for f in c["formats"]:

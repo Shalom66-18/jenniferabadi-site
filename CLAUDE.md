@@ -44,6 +44,10 @@ Copy an existing entry. `formats` decides whether it appears in the catalog: onl
 KIDS COOKING CLASSES, TEENS AND TWEENS COOKING CLASSES, VIRTUAL CHEF TALK…. Any other format (e.g. "Private Events")
 gets its own page but stays out of the catalog. `topics` feed the cuisine/holiday filter.
 
+Past events: add `"past_event": true` to an entry to take it out of the catalog while keeping it on file
+(its page stays at the same address). To reuse one later, remove the flag (and update dates/text).
+Currently filed as past events: all JCC Cooking Social classes/series and the Jewish Cookbook Social Club.
+
 ## Images
 Save new photos into `docs/images/` (JPEG, at most 1600 px wide, under ~400 KB) and refer to them as `images/<file name>`.
 Never delete images: old pages use them.
