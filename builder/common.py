@@ -99,7 +99,7 @@ def _ver(path):
     except OSError:
         return "1"
 
-def page(title, body, active="", description="", body_class="", depth=0):
+def page(title, body, active="", description="", body_class="", depth=0, hidden=False):
     """depth = how many folders deep the page sits (0 for index.html, 1 for about/index.html)."""
     t = "Jennifer Abadi" if not title else f"{title} – Jennifer Abadi"
     base = f'<base href="{"../" * depth}">\n' if depth else ""
@@ -109,7 +109,7 @@ def page(title, body, active="", description="", body_class="", depth=0):
 <meta charset="UTF-8">
 {base}<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{esc(t)}</title>
-<meta name="description" content="{esc(description)}">
+<meta name="description" content="{esc(description)}">{chr(10) + '<meta name="robots" content="noindex, nofollow">' if hidden else ""}
 <link rel="icon" href="{img('wp-uploads/2022/11/cropped-JenniferAbadi_COMPRESSED.png') if _find_source('wp-uploads/2022/11/cropped-JenniferAbadi_COMPRESSED.png') else img('assets/images/cropped-JenniferAbadi_COMPRESSED-300x300.png')}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css?family=Economica:400,700,400italic,700italic%7CLato:300,400,400italic,700%7COpen+Sans+Condensed:300,700&display=swap" rel="stylesheet">

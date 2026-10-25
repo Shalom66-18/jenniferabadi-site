@@ -46,6 +46,7 @@ gets its own page but stays out of the catalog. `topics` feed the cuisine/holida
 
 Past events: add `"past_event": true` to an entry to take it out of the catalog while keeping it on file
 (its page stays at the same address). To reuse one later, remove the flag (and update dates/text).
+Filed events are listed on the private archive page /past-events/ (not in the menu, not on Google).
 Currently filed as past events: all JCC Cooking Social classes/series and the Jewish Cookbook Social Club.
 
 ## Images

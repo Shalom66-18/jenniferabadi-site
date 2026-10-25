@@ -295,6 +295,23 @@ def build_catalog():
     print("catalog:", len(listed), "listed,", len(CLASSES) - len(listed), "hidden:", [c["title"] for c in CLASSES if c not in listed])
     write("cooking-class-catalog/index.html", page("Cooking Class Catalog", body, active="COOKING CLASS CATALOG", depth=1, body_class="page-catalog"))
 
+def build_past_events():
+    """Private archive of filed past events. Not in the menu, not linked, hidden from search engines.
+    Address: /past-events/ (only people who know it can open it)."""
+    past = [c for c in CLASSES if c.get("past_event")]
+    cards = ""
+    for c in past:
+        pic = f'<img src="{img(c["hero_image"], 700)}" alt="" loading="lazy">' if c.get("hero_image") else ""
+        cards += (f'<a class="post-card class-card" href="classes/{c["slug"]}/index.html">'
+                  f'<h3>{esc(c["title"])}</h3>{pic}<p class="fmt">{esc(", ".join(c["formats"]))}</p></a>')
+    body = f"""<h1 class="page-title">PAST EVENTS</h1>
+<div class="wrap">
+  <p class="archive-note">Private archive — this page is not in the menu and not shown on Google.
+  {len(past)} filed events. Click one to see its full page.</p>
+  <div class="post-grid">{cards}</div>
+</div>"""
+    write("past-events/index.html", page("Past Events", body, depth=1, hidden=True))
+
 def build_classes():
     for c in CLASSES:
         pic = f'<img src="{img(c["hero_image"], 1400)}" alt="{esc(c["title"])}">' if c.get("hero_image") else ""
@@ -312,7 +329,7 @@ def build_classes():
   </div>
   <div class="class-body">{clean(c["content_html"], autop=True)}</div>
 </article>"""
-        write(f'classes/{c["slug"]}/index.html', page(c["title"], body, active="COOKING CLASS CATALOG", depth=2,
+        write(f'classes/{c["slug"]}/index.html', page(c["title"], body, active="COOKING CLASS CATALOG", depth=2, hidden=bool(c.get("past_event")),
               description=text_of(c["content_html"], 155)))
 
 if __name__ == "__main__":
@@ -321,7 +338,7 @@ if __name__ == "__main__":
     wp_page("gift-certificates-2023", "gift-certificates-2023.html", "GIFT CERTIFICATES", extra_class="gifts")
     wp_page("contact-jennifer", "contact-jennifer.html", "CONTACT", extra_class="contact")
     build_recipes(); build_articles(); build_posts()
-    build_catalog(); build_classes()
+    build_catalog(); build_classes(); build_past_events()
     gone = remove_stale_pages()
     if gone: print("removed old pages:", gone)
     print("pages built. unknown internal links:", sorted(wphtml.UNKNOWN)[:40], len(wphtml.UNKNOWN))
